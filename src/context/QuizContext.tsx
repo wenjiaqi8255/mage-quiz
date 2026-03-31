@@ -65,7 +65,9 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  const currentAnswer = answers[currentDimension][currentQuestion]
+  // Calculate the index within the dimension (0-2 for each dimension)
+  const dimensionIndex = currentQuestion % 3
+  const currentAnswer = answers[currentDimension][dimensionIndex]
 
   const isFirstQuestion = currentQuestion === 0
   const isLastQuestion = currentQuestion === questions.length - 1

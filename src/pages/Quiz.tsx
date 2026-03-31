@@ -18,11 +18,14 @@ export default function Quiz() {
 
   const question = questions[currentQuestion]
   const dimension = question.dimension
-  const currentAnswer = answers[dimension][currentQuestion]
+
+  // Calculate the index within the dimension (0-2 for each dimension)
+  const dimensionIndex = currentQuestion % 3
+  const currentAnswer = answers[dimension][dimensionIndex]
   const progress = Math.round((currentQuestion / totalQuestions) * 100)
 
   const handleOptionClick = (value: string) => {
-    setAnswer(dimension, currentQuestion, value)
+    setAnswer(dimension, dimensionIndex, value)
   }
 
   const handleNext = () => {
