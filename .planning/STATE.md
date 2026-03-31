@@ -26,13 +26,18 @@ See: .planning/PROJECT.md (updated 2026-03-31)
 
 ### Phase 6: JSON-driven quiz data
 
-**Status:** Plan 1 completed (06-01)
+**Status:** Plans 1 and 2 completed (06-01, 06-02)
 
 **Goal:** Refactor quiz data from hardcoded TypeScript files to JSON-driven configuration
 
 **Plan 1 completed:**
 - JSON types and loading utility created (src/data/quizConfig.ts)
 - calculateResult updated to use JSON key format
+
+**Plan 2 completed:**
+- QuizContext updated to use quizConfig.ts (JSON data source)
+- Quiz page uses dimensionLabels from dimensions config
+- TypeScript type issues fixed with dimension types
 
 **Requirements:**
 - SETUP-01: Initialize Vite + React + TypeScript project - Done
@@ -55,6 +60,7 @@ See: .planning/PROJECT.md (updated 2026-03-31)
 |---|-------------|------|--------|-----------|
 | 1 | Mage project initialization | 2026-03-31 | c87e3b1 | - |
 | 2 | JSON-driven quiz configuration | 2026-04-01 | e849704 | - |
+| 3 | JSON-driven quiz pages integration | 2026-04-01 | 9bfaad1 | - |
 
 ---
 
