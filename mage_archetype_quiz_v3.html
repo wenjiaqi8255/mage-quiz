@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>法师流派测算</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            m: {
+              bg: '#0a0a0b',
+              surface: '#121214',
+              card: '#1a1a1d',
+              border: '#2a2a30',
+              'border-light': '#3a3a42',
+              text: '#e8e6e3',
+              'text-dim': '#8a8a8f',
+              'text-faint': '#5a5a60',
+              gold: '#c9a962',
+              'gold-dim': '#8a7642',
+              'gold-glow': '#d4b978',
+              accent: '#7c5cbf',
+            }
+          },
+          fontFamily: {
+            serif: ['Noto Serif SC', 'serif'],
+            display: ['Cormorant Garamond', 'serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0a0a0b;
+      min-height: 100vh;
+      color: #e8e6e3;
+      font-family: 'Noto Serif SC', serif;
+      overflow-x: hidden;
+    }
+    .bg-layer {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 0%, rgba(124, 92, 191, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(201, 169, 98, 0.04) 0%, transparent 40%),
+        radial-gradient(ellipse 50% 50% at 20% 60%, rgba(201, 169, 98, 0.03) 0%, transparent 30%),
+        #0a0a0b;
+    }
+    .glow-border {
+      position: relative;
+      background: #121214;
+      border: 1px solid #2a2a30;
+      border-radius: 12px;
+    }
+    .glow-border::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: 13px;
+      padding: 1px;
+      background: linear-gradient(135deg, rgba(201, 169, 98, 0.3), transparent 50%, rgba(124, 92, 191, 0.2));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    .glow-border:hover::before, .glow-border.active::before {
+      opacity: 1;
+    }
+    .option-btn {
+      position: relative;
+      background: #1a1a1d;
+      border: 1px solid #2a2a30;
+      border-radius: 8px;
+      padding: 16px 20px;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+    }
+    .option-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(201, 169, 98, 0.08), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .option-btn:hover {
+      border-color: #3a3a42;
+      transform: translateY(-1px);
+    }
+    .option-btn:hover::before {
+      opacity: 1;
+    }
+    .option-btn.selected {
+      border-color: #c9a962;
+      background: linear-gradient(135deg, rgba(201, 169, 98, 0.1), #1a1a1d);
+    }
+    .option-btn.selected::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(180deg, #c9a962, #8a7642);
+    }
+    .opt-letter {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      color: #5a5a60;
+      margin-bottom: 6px;
+      font-style: italic;
+    }
+    .option-btn.selected .opt-letter {
+      color: #c9a962;
+    }
+    .progress-track {
+      height: 2px;
+      background: #2a2a30;
+      border-radius: 1px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #8a7642, #c9a962);
+      border-radius: 1px;
+      transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .nav-btn {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 14px;
+      color: #8a8a8f;
+      background: transparent;
+      border: 1px solid #2a2a30;
+      border-radius: 6px;
+      padding: 10px 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .nav-btn:hover:not(:disabled) {
+      color: #e8e6e3;
+      border-color: #3a3a42;
+    }
+    .nav-btn:disabled {
+      opacity: 0.3;
+      cursor: default;
+    }
+    .nav-btn.primary {
+      background: linear-gradient(135deg, #c9a962, #8a7642);
+      color: #0a0a0b;
+      border: none;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+    }
+    .nav-btn.primary:hover:not(:disabled) {
+      background: linear-gradient(135deg, #d4b978, #c9a962);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px rgba(201, 169, 98, 0.2);
+    }
+    .nav-btn.primary:disabled {
+      opacity: 0.3;
+      cursor: default;
+      background: #3a3a42;
+    }
+    .rune-symbol {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 56px;
+      background: linear-gradient(135deg, #c9a962, #d4b978, #8a7642);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 30px rgba(201, 169, 98, 0.3));
+      animation: runeGlow 3s ease-in-out infinite;
+    }
+    @keyframes runeGlow {
+      0%, 100% { filter: drop-shadow(0 0 30px rgba(201, 169, 98, 0.3)); }
+      50% { filter: drop-shadow(0 0 40px rgba(201, 169, 98, 0.5)); }
+    }
+    .stat-card {
+      background: #1a1a1d;
+      border: 1px solid #2a2a30;
+      border-radius: 8px;
+      padding: 14px;
+      text-align: center;
+    }
+    .stat-label {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      color: #5a5a60;
+      margin-bottom: 8px;
+    }
+    .stat-value {
+      font-size: 14px;
+      color: #c9a962;
+    }
+    .page-enter {
+      animation: fadeSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .divider {
+      border: none;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #2a2a30, transparent);
+    }
+    .restart-btn {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 13px;
+      letter-spacing: 0.1em;
+      color: #8a8a8f;
+      background: transparent;
+      border: 1px solid #2a2a30;
+      border-radius: 6px;
+      padding: 12px 28px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .restart-btn:hover {
+      color: #c9a962;
+      border-color: #c9a962;
+      background: rgba(201, 169, 98, 0.05);
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-layer"></div>
+  <div class="qw" id="qapp"></div>
+
+  <script>
+    (function() {
+      const Qs = [
+        {text: "你站在一座古老图书馆的入口。馆内据说藏有能改变世界的秘密。你会怎么做？", dim: "src", opts: [{t: "找到最古老的典籍，从头系统地研读——宇宙的规律一定有迹可循", v: "界域"}, {t: "去找守馆的老者，与他建立信任，请他指引我该读什么", v: "宗主"}, {t: "闭上眼，感受哪一排书架在召唤我——我的直觉不会错", v: "自我"}]},
+        {text: "你的法术失败了，炸伤了自己。你怎么理解这次失败？", dim: "met", opts: [{t: "一定是某个步骤的顺序或参数出了错，我需要重新推导公式", v: "律式"}, {t: "我与那股力量的沟通出现了误解，需要重新谈判条件", v: "契约"}, {t: "我的意志不够坚定，杂念太多，下次要在更纯粹的状态下尝试", v: "意志"}]},
+        {text: "施展一次极强的魔法之后，你感到：", dim: "cst", opts: [{t: "脑子里一片空白，精神力被榨干，需要长时间休息", v: "心神"}, {t: "隐约感到自己与某个命运的节点错位了，未来有什么将会改变", v: "因果"}, {t: "某件随身之物消耗殆尽，或者身体上留下了一道不会痊愈的印记", v: "介质"}]},
+        {text: "一个陌生人请求你传授法力。你会怎么判断是否答应？", dim: "src", opts: [{t: "看他是否愿意从基础学起，是否真的理解世界运转的规律", v: "界域"}, {t: "取决于我背后的力量是否愿意接纳他——这不完全由我决定", v: "宗主"}, {t: "感受他的内心——力量是内生的，我能教的不过是唤醒方式", v: "自我"}]},
+        {text: "你遇到了一道从未见过的封印。你的第一反应是？", dim: "met", opts: [{t: "分析封印的构造，找到其底层逻辑，用对应的破解式拆解", v: "律式"}, {t: "尝试与封印背后的存在对话，搞清楚谁设下它以及条件是什么", v: "契约"}, {t: "凝聚全部意志，直接对抗——如果信念够强，封印就会碎", v: "意志"}]},
+        {text: "完成一次重要任务后，你发现代价比预期的大。此刻你想到的是：", dim: "cst", opts: [{t: "我的精神储量已经见底，这种消耗不可持续，需要找到恢复的方法", v: "心神"}, {t: "我欠下了一笔因果债，日后某处会有代价来收——只是不知道以何种形式", v: "因果"}, {t: "那些材料和媒介都是有限的，我必须更谨慎地规划下一次消耗", v: "介质"}]},
+        {text: "如果可以选择，你最理想的修炼场所是？", dim: "src", opts: [{t: "深山或海边——越接近原始的自然力，越容易感知到能量流动", v: "界域"}, {t: "某个古老的圣所或神殿——那里有与更高存在沟通的通道", v: "宗主"}, {t: "任何我独处的地方——外部环境不重要，关键在于向内挖掘", v: "自我"}]},
+        {text: "一位老法师告诉你：「真正的力量，必须有所放弃。」你会放弃什么？", dim: "cst", opts: [{t: "时间与精力——我愿意用毕生的专注去换取深度", v: "心神"}, {t: "某种可能性或自由——力量越大，命运的轨道就越窄", v: "因果"}, {t: "某些珍贵的事物或身体的一部分——有形的代价最为诚实", v: "介质"}]},
+        {text: "同伴问你：「你的魔法，到底遵循什么规则？」你会怎么回答？", dim: "met", opts: [{t: "「有一套体系，我可以解释给你听。」", v: "律式"}, {t: "「我不独自使用魔法——背后有协议，有条件，有对等的关系。」", v: "契约"}, {t: "「没有规则。只要我相信它会发生，它就会发生。」", v: "意志"}]}
+      ];
+
+      const AR = {
+        "界域-律式-心神": {name: "学源法师", rune: "⟁", desc: "你是最古典意义上的法师——以智识为武器，从世界的基础规律中汲取力量，代价是永无止境的精神消耗。书房、法阵、深夜燃烧的蜡烛，这是你的战场。", ex: "Wizard (D&D)、哈利波特世界的研究系法师"},
+        "界域-律式-因果": {name: "窥天术士", rune: "◎", desc: "你从宇宙运行的规律中看见命运的纹路。每一次洞察未来，都意味着自己的命运也被改写了一部分。你是危险的预言者，也是被预言所困的人。", ex: "阴阳师、占星家、命运之书的持有者"},
+        "界域-律式-介质": {name: "炼金术士", rune: "⊕", desc: "你相信世界是可以被理解和改造的。用物换物，用理解换力量。你不崇拜神明，不依赖意志，只信任经过验证的公式。", ex: "炼金术士、符文锻造师、药剂大师"},
+        "界域-契约-心神": {name: "自然巫师", rune: "⌾", desc: "你与自然界的精灵、元素建立了深厚的联结。这是互相尊重的关系，不是命令与服从。每一次施法都是一次对话，代价是你全神贯注的投入。", ex: "萨满、自然灵媒、元素沟通者"},
+        "界域-契约-因果": {name: "自然守护者", rune: "⋈", desc: "你与自然签订了约定，获得力量，也承担了约束——你不能违背自然的意志。你是守护，不是征服。", ex: "德鲁伊、林地守卫、大地祭司"},
+        "界域-契约-介质": {name: "巫医通灵者", rune: "⌘", desc: "你以具体的物质——草药、骨骸、鲜血、图腾——作为与灵界沟通的媒介。这是古老的艺术，被大多数现代人遗忘。", ex: "巫医、通灵师、萨满祭祀"},
+        "界域-意志-心神": {name: "天人合一者", rune: "◉", desc: "你相信修炼是向内而非向外的旅途。宇宙的能量无处不在，关键是让自我与之共鸣。你消耗的是精神深度，换来的是与天地同频的能力。", ex: "修真者、气功高手、内功修炼者"},
+        "界域-意志-因果": {name: "命途行者", rune: "∞", desc: "你行走在命运的法则之间，本身已经成为一种宇宙规律的体现。你不需要学习，不需要交换，但你的每一步都被因果紧紧咬合。", ex: "命途选定者、星痕行者、规律化身"},
+        "界域-意志-介质": {name: "自然化身", rune: "❋", desc: "你从自然界汲取力量，以意志驱动，以自身作为媒介——你的存在本身就是法术的载体。你与自然的界线并不清晰。", ex: "树精、花妖、自然化身的存在"},
+        "宗主-律式-心神": {name: "神明使者", rune: "✦", desc: "你研习神明的知识，用他们的语言施法。这不是盲目的信仰，而是系统化的神学——你是神学与法术的交叉点。", ex: "神职法师、圣典研习者"},
+        "宗主-律式-因果": {name: "信仰之光", rune: "☩", desc: "你的力量来自信仰，施法遵循神明定下的规则。代价不是魔力值，而是业力——你的行为必须与信仰一致，否则力量将反噬。", ex: "牧师、圣职者、信仰术士"},
+        "宗主-律式-介质": {name: "神器密法师", rune: "⧖", desc: "你通过特定的神圣物品与神明建立联结，施法仪式严格而精密。规则是神定的，你只是精准的执行者。", ex: "神器使用者、密法祭司"},
+        "宗主-契约-心神": {name: "降神使者", rune: "⊗", desc: "你打开自己的意识，让更高的存在借用你的感知。你贡献的是意识本身，获得的是来自彼岸的知识与力量。", ex: "灵媒、降神者、通灵使者"},
+        "宗主-契约-因果": {name: "神之使徒", rune: "☬", desc: "你与神明签订了明确的协议，你为他们行事，他们赋予你力量。你的命运从此与更大的意志交织。", ex: "邪术师、圣骑士、死亡骑士、契约术士"},
+        "宗主-契约-介质": {name: "法宝持有者", rune: "✧", desc: "你通过某件神圣的媒介与宗主相连。力量的来源是契约，通道是媒介，你的施法仪式感极强，也极为清晰。", ex: "魔法少女、圣器骑士、宝物持有者"},
+        "宗主-意志-心神": {name: "神谕先知", rune: "◈", desc: "你是被选中的那个人，神明将意志直接灌注于你，不需要仪式，不需要媒介。这种力量会逐渐模糊你与神明之间的边界。", ex: "弥赛亚、神意先知、神选之人"},
+        "宗主-意志-因果": {name: "神仆存在", rune: "∇", desc: "你本身就是宗主意志的延伸，你的力量不是借来的，而是你存在的一部分。你是更大棋局中的一枚棋。", ex: "天使、下级神祇、命运纽带"},
+        "宗主-意志-介质": {name: "幻想具现者", rune: "◇", desc: "某件神圣的物品赋予了你改变现实的意志之力。你的愿望可以成真，但每一次具现都有代价，物品背后的存在未必与你的目标一致。", ex: "许愿神灯、神器附体、幻想具现者"},
+        "自我-律式-心神": {name: "魔力学者", rune: "⬡", desc: "你的力量来自血脉或天赋，但你选择用系统化的方式理解和控制它。你把天赋变成体系，消耗的是永无止境的专注。", ex: "哈利波特（正统版）、奥术学者、魔力研究者"},
+        "自我-律式-因果": {name: "禁忌术士", rune: "⟂", desc: "你深知自身力量的边界，也知道越界的代价。但每一次真正爆发，都会在命运上留下不可逆的刻痕。", ex: "伏地魔式存在、禁术使用者、以命换力者"},
+        "自我-律式-介质": {name: "改造术师", rune: "⛭", desc: "你通过改造自身来系统性地释放能力。力量的来源是自我，方式是精密的改造逻辑，代价是你原本的样子。", ex: "改造人、纳米机械使用者、义体法师"},
+        "自我-契约-心神": {name: "人格面具使", rune: "⦿", desc: "你通过扮演、信仰某种人格或角色来召唤出内在深处的力量。这是一种与自己深层意识的契约。", ex: "人格面具使者（Persona）、演化者"},
+        "自我-契约-因果": {name: "命运承担者", rune: "⊘", desc: "你生来就被某个宏大的命运所标记，与之签订了你无法拒绝的契约。力量巨大，但轨道也极窄。", ex: "从者、命运使者、英灵"},
+        "自我-契约-介质": {name: "血约术士", rune: "⊛", desc: "你以自己的血肉、灵魂等作为施法的媒介，与某种内在的存在签订契约。每一次施法都是在消耗「你」。", ex: "血魔法师、灵魂消耗者、自我祭祀者"},
+        "自我-意志-心神": {name: "异能觉醒者", rune: "★", desc: "你的力量来自天生的血脉或变异，无需学习，无需契约，想到即发生。上限取决于你的信念有多坚定。", ex: "异能者、天生术士（Sorcerer）、X战警"},
+        "自我-意志-因果": {name: "超然存在", rune: "⊞", desc: "你已经超越了「施法者」的范畴。你的意志本身就是规律，你的存在就是法术，而你的因果已经与世界的因果缠绕在一起。", ex: "神明、高维生物、意志化身"},
+        "自我-意志-介质": {name: "神器骑士", rune: "⚔", desc: "你本身拥有强大的内在力量，但需要通过特定的媒介——圣衣、神器——来放大和具现它。你是力量的来源，媒介是放大器。", ex: "圣斗士、神装骑士、圣器佩戴者"}
+      };
+
+      let cur = 0;
+      const ans = {src: [], met: [], cst: []};
+
+      function pick(dim, idx, val) {
+        ans[dim][idx] = val;
+        render();
+      }
+
+      function top(obj) {
+        return Object.entries(obj).sort((a, b) => b[1] - a[1])[0][0];
+      }
+
+      function tally() {
+        const src = {界域: 0, 宗主: 0, 自我: 0}, met = {律式: 0, 契约: 0, 意志: 0}, cst = {心神: 0, 因果: 0, 介质: 0};
+        Qs.forEach((q, i) => {
+          const v = ans[q.dim][i];
+          if (!v) return;
+          if (q.dim === 'src') src[v] = (src[v] || 0) + 1;
+          if (q.dim === 'met') met[v] = (met[v] || 0) + 1;
+          if (q.dim === 'cst') cst[v] = (cst[v] || 0) + 1;
+        });
+        return {src, met, cst};
+      }
+
+      function fmt(obj) {
+        return Object.entries(obj).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k}×${v}`).join(' ');
+      }
+
+      function render(animate = true) {
+        const app = document.getElementById('qapp');
+        if (cur >= Qs.length) {
+          const {src, met, cst} = tally();
+          const key = `${top(src)}-${top(met)}-${top(cst)}`;
+          const a = AR[key] || {name: "多元法师", rune: "⊕", desc: "你的法力属性难以归入单一流派——多种力量在你身上交织，这往往是最强大也最难驾驭的类型。", ex: "多维度施法者"};
+
+          const container = document.createElement('div');
+          container.className = 'page-enter';
+          container.innerHTML = `
+            <div class="max-w-xl mx-auto px-6 py-12">
+              <div class="text-center mb-8">
+                <div class="rune-symbol mb-4">${a.rune}</div>
+                <h2 class="font-display text-2xl tracking-wider text-[#e8e6e3] mb-2">${a.name}</h2>
+                <p class="text-sm text-[#5a5a60] tracking-widest font-display">${top(src)} · ${top(met)} · ${top(cst)}</p>
+              </div>
+              <hr class="divider my-8">
+              <div class="glow-border p-6 mb-8">
+                <p class="text-[#e8e6e3] text-base leading-relaxed">${a.desc}</p>
+                <p class="text-sm text-[#5a5a60] mt-4 italic">典型形象：${a.ex}</p>
+              </div>
+              <div class="grid grid-cols-3 gap-3 mb-10">
+                <div class="stat-card"><div class="stat-label">来源</div><div class="stat-value">${fmt(src) || '—'}</div></div>
+                <div class="stat-card"><div class="stat-label">方式</div><div class="stat-value">${fmt(met) || '—'}</div></div>
+                <div class="stat-card"><div class="stat-label">代价</div><div class="stat-value">${fmt(cst) || '—'}</div></div>
+              </div>
+              <div class="text-center">
+                <button class="restart-btn" onclick="restart()">重新测算</button>
+              </div>
+            </div>
+          `;
+          app.innerHTML = '';
+          app.appendChild(container);
+          return;
+        }
+
+        const q = Qs[cur];
+        const sel = ans[q.dim][cur];
+        const pct = Math.round(cur / Qs.length * 100);
+
+        const container = document.createElement('div');
+        container.className = animate ? 'page-enter' : '';
+        container.innerHTML = `
+          <div class="max-w-xl mx-auto px-6 py-8">
+            <div class="text-center mb-6">
+              <h1 class="font-display text-lg tracking-widest text-[#e8e6e3] mb-1">法师流派测算</h1>
+              <p class="text-sm text-[#5a5a60] font-display italic">共九问，依心而答</p>
+            </div>
+            <div class="progress-track mb-8">
+              <div class="progress-fill" style="width: ${pct}%"></div>
+            </div>
+            <div class="text-xs tracking-[0.2em] text-[#5a5a60] mb-4 text-center font-display">第 ${cur + 1} 问 / ${Qs.length}</div>
+            <div class="glow-border p-6 mb-6">
+              <p class="text-[#e8e6e3] text-lg leading-relaxed">${q.text}</p>
+            </div>
+            <div class="space-y-3 mb-8">
+              ${q.opts.map((o, i) => `
+                <button class="option-btn w-full text-left ${sel === o.v ? 'selected' : ''}" data-dim="${q.dim}" data-idx="${cur}" data-val="${o.v}">
+                  <div class="opt-letter">${['I', 'II', 'III'][i]}</div>
+                  <div class="text-[#e8e6e3] text-[15px] leading-relaxed">${o.t}</div>
+                </button>
+              `).join('')}
+            </div>
+            <div class="flex justify-between items-center">
+              <button class="nav-btn" id="pbtn" ${cur === 0 ? 'disabled' : ''}>← 上一问</button>
+              <button class="nav-btn primary" id="nxtbtn" ${!sel ? 'disabled' : ''}>${cur === Qs.length - 1 ? '揭示结果 →' : '下一问 →'}</button>
+            </div>
+          </div>
+        `;
+
+        app.innerHTML = '';
+        app.appendChild(container);
+
+        app.querySelectorAll('.option-btn').forEach(btn => {
+          btn.addEventListener('click', function() {
+            pick(this.dataset.dim, parseInt(this.dataset.idx), this.dataset.val);
+          });
+        });
+
+        document.getElementById('pbtn').addEventListener('click', function() {
+          if (cur > 0) {cur--; render(false);}
+        });
+
+        document.getElementById('nxtbtn').addEventListener('click', function() {
+          if (ans[Qs[cur].dim][cur]) {cur++; render();}
+        });
+      }
+
+      window.restart = function() {
+        cur = 0;
+        Object.keys(ans).forEach(k => ans[k] = []);
+        render();
+      };
+
+      render(false);
+    })();
+  </script>
+</body>
+</html>

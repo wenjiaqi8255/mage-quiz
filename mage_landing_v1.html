@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>法师流派测算 - 发现你的魔法命运</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            m: {
+              bg: '#0a0a0b',
+              surface: '#121214',
+              card: '#1a1a1d',
+              border: '#2a2a30',
+              'border-light': '#3a3a42',
+              text: '#e8e6e3',
+              'text-dim': '#8a8a8f',
+              'text-faint': '#5a5a60',
+              gold: '#c9a962',
+              'gold-dim': '#8a7642',
+              'gold-glow': '#d4b978',
+              accent: '#7c5cbf',
+            }
+          },
+          fontFamily: {
+            serif: ['Noto Serif SC', 'serif'],
+            display: ['Cormorant Garamond', 'serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: #0a0a0b;
+      min-height: 100vh;
+      color: #e8e6e3;
+      font-family: 'Noto Serif SC', serif;
+      overflow-x: hidden;
+    }
+    
+    /* 背景层次 */
+    .bg-layer {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% 0%, rgba(124, 92, 191, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 40% at 80% 90%, rgba(201, 169, 98, 0.06) 0%, transparent 40%),
+        radial-gradient(ellipse 50% 50% at 15% 70%, rgba(201, 169, 98, 0.04) 0%, transparent 35%),
+        #0a0a0b;
+    }
+    
+    /* 粒子效果 */
+    .particles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .particle {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: rgba(201, 169, 98, 0.4);
+      border-radius: 50%;
+      animation: float 8s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
+      10% { opacity: 0.6; }
+      50% { transform: translateY(-100px) translateX(20px); opacity: 0.3; }
+      90% { opacity: 0.6; }
+    }
+    
+    /* 标题渐变 */
+    .title-gradient {
+      background: linear-gradient(135deg, #e8e6e3 0%, #c9a962 50%, #d4b978 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    /* 主按钮 */
+    .cta-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: linear-gradient(135deg, #c9a962, #8a7642);
+      color: #0a0a0b;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 16px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      padding: 18px 36px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      text-decoration: none;
+    }
+    .cta-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(201, 169, 98, 0.3), 0 0 60px rgba(201, 169, 98, 0.1);
+      background: linear-gradient(135deg, #d4b978, #c9a962);
+    }
+    .cta-btn::after {
+      content: '→';
+      font-size: 18px;
+      transition: transform 0.3s ease;
+    }
+    .cta-btn:hover::after {
+      transform: translateX(4px);
+    }
+    
+    /* 装饰边框 */
+    .deco-box {
+      position: relative;
+      background: #121214;
+      border: 1px solid #2a2a30;
+      border-radius: 16px;
+      padding: 40px;
+    }
+    .deco-box::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: 17px;
+      padding: 1px;
+      background: linear-gradient(135deg, rgba(201, 169, 98, 0.4), transparent 40%, rgba(124, 92, 191, 0.3));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      opacity: 0.5;
+    }
+    
+    /* 符文展示 */
+    .rune-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    .rune-item {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 24px;
+      color: #5a5a60;
+      transition: all 0.4s ease;
+      cursor: default;
+    }
+    .rune-item:hover {
+      color: #c9a962;
+      text-shadow: 0 0 20px rgba(201, 169, 98, 0.5);
+      transform: scale(1.1);
+    }
+    
+    /* 特性卡片 */
+    .feature-card {
+      background: #1a1a1d;
+      border: 1px solid #2a2a30;
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+    .feature-card:hover {
+      border-color: #3a3a42;
+      transform: translateY(-4px);
+    }
+    .feature-icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+    .feature-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 14px;
+      letter-spacing: 0.1em;
+      color: #c9a962;
+      margin-bottom: 8px;
+    }
+    .feature-desc {
+      font-size: 14px;
+      color: #8a8a8f;
+      line-height: 1.6;
+    }
+    
+    /* 动画 */
+    .fade-in {
+      animation: fadeIn 0.8s ease forwards;
+      opacity: 0;
+    }
+    .fade-in-delay-1 { animation-delay: 0.2s; }
+    .fade-in-delay-2 { animation-delay: 0.4s; }
+    .fade-in-delay-3 { animation-delay: 0.6s; }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .float {
+      animation: floatAnim 6s ease-in-out infinite;
+    }
+    @keyframes floatAnim {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    /* 底部 */
+    .footer-link {
+      color: #5a5a60;
+      text-decoration: none;
+      font-size: 13px;
+      transition: color 0.3s ease;
+    }
+    .footer-link:hover {
+      color: #c9a962;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-layer"></div>
+  <div class="particles" id="particles"></div>
+
+  <!-- Hero Section -->
+  <section class="min-h-screen flex flex-col items-center justify-center px-6 py-20">
+    <div class="max-w-2xl text-center">
+      <!-- 顶部标签 -->
+      <div class="fade-in mb-6">
+        <span class="inline-block px-4 py-1.5 border border-[#2a2a30] rounded-full text-xs tracking-[0.2em] text-[#5a5a60] font-display">
+          27 种法师原型
+        </span>
+      </div>
+      
+      <!-- 主标题 -->
+      <h1 class="fade-in fade-in-delay-1 text-5xl md:text-6xl font-bold mb-6 title-gradient leading-tight">
+        法师流派测算
+      </h1>
+      
+      <!-- 副标题 -->
+      <p class="fade-in fade-in-delay-2 text-lg md:text-xl text-[#8a8a8f] mb-10 leading-relaxed max-w-lg mx-auto">
+        九道选择题，<br class="md:hidden">
+        揭示你与哪个魔法位面产生共鸣。
+      </p>
+      
+      <!-- CTA 按钮 -->
+      <div class="fade-in fade-in-delay-3">
+        <a href="mage_archetype_quiz_v3.html" class="cta-btn">
+          开始测算
+        </a>
+      </div>
+    </div>
+    
+    <!-- 向下滚动提示 -->
+    <div class="absolute bottom-10 left-1/2 -translate-x-1/2 float">
+      <span class="text-[#5a5a60] text-xs tracking-widest">向下探索</span>
+    </div>
+  </section>
+
+  <!-- 符文展示 Section -->
+  <section class="py-20 px-6">
+    <div class="max-w-xl mx-auto">
+      <div class="deco-box">
+        <h2 class="text-center font-display text-lg tracking-widest text-[#e8e6e3] mb-8">
+          你的命运，或许早已写在星辰之中
+        </h2>
+        <div class="rune-grid">
+          <span class="rune-item" title="学源法师">⟁</span>
+          <span class="rune-item" title="窥天术士">◎</span>
+          <span class="rune-item" title="炼金术士">⊕</span>
+          <span class="rune-item" title="自然巫师">⌾</span>
+          <span class="rune-item" title="天人合一者">◉</span>
+          <span class="rune-item" title="命途行者">∞</span>
+          <span class="rune-item" title="神明使者">✦</span>
+          <span class="rune-item" title="神之使徒">☬</span>
+          <span class="rune-item" title="神仆存在">∇</span>
+          <span class="rune-item" title="禁忌术士">⟂</span>
+          <span class="rune-item" title="超然存在">⊞</span>
+          <span class="rune-item" title="神器骑士">⚔</span>
+        </div>
+        <p class="text-center text-[#5a5a60] text-sm mt-8 font-display italic">
+          ...还有更多等你发现
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 特性 Section -->
+  <section class="py-20 px-6">
+    <div class="max-w-3xl mx-auto">
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="feature-card">
+          <div class="feature-icon">◇</div>
+          <div class="feature-title">三种维度</div>
+          <div class="feature-desc">力量来源、施法方式、付出代价——全面解析你的法师特质</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">∞</div>
+          <div class="feature-title">二十七原型</div>
+          <div class="feature-desc">从学源法师到超然存在，每一种都拥有独特的背景与故事</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">✦</div>
+          <div class="feature-title">立即开始</div>
+          <div class="feature-desc">九道选择题，无需注册，随时随地开启你的魔法探索之旅</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="py-24 px-6">
+    <div class="max-w-xl mx-auto text-center">
+      <h2 class="font-display text-2xl text-[#e8e6e3] mb-4">准备好发现你的法师类型了吗？</h2>
+      <p class="text-[#5a5a60] mb-10">宇宙的密码，等待你来解读</p>
+      <a href="mage_archetype_quiz_v3.html" class="cta-btn">
+        开始测算
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="py-8 px-6 border-t border-[#2a2a30]">
+    <div class="max-w-4xl mx-auto text-center">
+      <p class="text-[#5a5a60] text-sm">
+        仅供娱乐 · 科学与玄学的边界之间
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    // 创建粒子
+    const particlesContainer = document.getElementById('particles');
+    for (let i = 0; i < 20; i++) {
+      const particle = document.createElement('div');
+      particle.className = 'particle';
+      particle.style.left = Math.random() * 100 + '%';
+      particle.style.top = Math.random() * 100 + '%';
+      particle.style.animationDelay = Math.random() * 8 + 's';
+      particle.style.animationDuration = (6 + Math.random() * 4) + 's';
+      particlesContainer.appendChild(particle);
+    }
+  </script>
+</body>
+</html>
