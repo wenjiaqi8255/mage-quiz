@@ -4,24 +4,7 @@
 // Dimension type
 export type Dimension = 'source' | 'method' | 'cost'
 
-// Option within a dimension
-export interface DimensionOption {
-  label: string
-  description: string
-  keywords: string[]
-}
-
-// Dimension configuration
-export interface DimensionConfig {
-  id: Dimension
-  label: string
-  question_count: number
-  description: string
-  design_note: string
-  options: Record<string, DimensionOption>
-}
-
-// Question option
+// Option within a question
 export interface QuestionOption {
   id: string
   text: string
@@ -45,19 +28,16 @@ export interface ScoringConfig {
   tiebreaker_explanation: string
   result_key_format: string
   result_key_example: string
-  dimension_order: Dimension[]
+  dimension_order: string[]
 }
 
-// Archetype in the quiz
+// Archetype in the quiz (source/method/cost are derived from the key)
 export interface Archetype {
   name: string
   rune: string
   description: string
   examples: string[]
   tags: string[]
-  source: string
-  method: string
-  cost: string
 }
 
 // Meta information
@@ -76,9 +56,9 @@ export interface QuizMeta {
 export interface QuizConfig {
   _meta: QuizMeta
   dimensions: {
-    source: DimensionConfig
-    method: DimensionConfig
-    cost: DimensionConfig
+    source: { id: string; label: string; question_count: number; description: string; design_note: string; options: Record<string, { label: string; description: string; keywords: string[] }> }
+    method: { id: string; label: string; question_count: number; description: string; design_note: string; options: Record<string, { label: string; description: string; keywords: string[] }> }
+    cost: { id: string; label: string; question_count: number; description: string; design_note: string; options: Record<string, { label: string; description: string; keywords: string[] }> }
   }
   questions: Question[]
   scoring: ScoringConfig
@@ -89,11 +69,9 @@ export interface QuizConfig {
 import config from '../../mage_quiz_config.json'
 
 // Re-export typed data from JSON
-export const questions: Question[] = config.questions
+// Note: dimension values in JSON are strings, we cast to Dimension type
+export const questions = config.questions as Question[]
 export const dimensions = config.dimensions
 export const scoring = config.scoring
 export const meta: QuizMeta = config._meta
-export const archetypes: Record<string, Archetype> = config.archetypes
-
-// Type assertion for the config import
-const _config: QuizConfig = config
+export const archetypes = config.archetypes as Record<string, Archetype>

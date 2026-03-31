@@ -1,6 +1,22 @@
 import { useNavigate } from 'react-router-dom'
 import { useQuiz } from '../context/QuizContext'
-import { questions, dimensionLabels } from '../data/questions'
+import { questions, dimensions, type Dimension } from '../data/quizConfig'
+
+// Map Dimension to Answers key
+const dimensionToKey = (dimension: Dimension): 'src' | 'met' | 'cst' => {
+  switch (dimension) {
+    case 'source': return 'src'
+    case 'method': return 'met'
+    case 'cost': return 'cst'
+  }
+}
+
+// Derive dimension labels from dimensions config
+const dimensionLabels: Record<string, string> = {
+  source: dimensions.source.label,
+  method: dimensions.method.label,
+  cost: dimensions.cost.label
+}
 
 export default function Quiz() {
   const navigate = useNavigate()
@@ -21,7 +37,8 @@ export default function Quiz() {
 
   // Calculate the index within the dimension (0-2 for each dimension)
   const dimensionIndex = currentQuestion % 3
-  const currentAnswer = answers[dimension][dimensionIndex]
+  const dimensionKey = dimensionToKey(dimension)
+  const currentAnswer = answers[dimensionKey][dimensionIndex]
   const progress = Math.round((currentQuestion / totalQuestions) * 100)
 
   const handleOptionClick = (value: string) => {
@@ -169,7 +186,7 @@ export default function Quiz() {
             >
               <div className="opt-letter">{['I', 'II', 'III'][i]}</div>
               <div className="text-[#e8e6e3] text-[15px] leading-relaxed">
-                {option.label}
+                {option.text}
               </div>
             </button>
           ))}

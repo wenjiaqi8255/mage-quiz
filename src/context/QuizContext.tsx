@@ -1,11 +1,20 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react'
-import { questions, type Dimension } from '../data/questions'
+import { questions, type Dimension } from '../data/quizConfig'
 import { calculateResult, type Result } from '../utils/calculateResult'
 
 interface Answers {
   src: (string | null)[]
   met: (string | null)[]
   cst: (string | null)[]
+}
+
+// Map Dimension to Answers key
+const dimensionToKey = (dimension: Dimension): 'src' | 'met' | 'cst' => {
+  switch (dimension) {
+    case 'source': return 'src'
+    case 'method': return 'met'
+    case 'cost': return 'cst'
+  }
 }
 
 interface QuizContextType {
@@ -37,14 +46,16 @@ export function QuizProvider({ children }: { children: ReactNode }) {
   const currentDimension = questions[currentQuestion].dimension
 
   const setAnswer = useCallback((dimension: Dimension, index: number, value: string) => {
+    const key = dimensionToKey(dimension)
     setAnswers(prev => ({
       ...prev,
-      [dimension]: prev[dimension].map((v, i) => i === index ? value : v)
+      [key]: prev[key].map((v: string | null, i: number) => i === index ? value : v)
     }))
   }, [])
 
   const getAnswer = useCallback((dimension: Dimension, index: number): string | null => {
-    return answers[dimension][index]
+    const key = dimensionToKey(dimension)
+    return answers[key][index]
   }, [answers])
 
   const nextQuestion = useCallback(() => {
@@ -67,7 +78,8 @@ export function QuizProvider({ children }: { children: ReactNode }) {
 
   // Calculate the index within the dimension (0-2 for each dimension)
   const dimensionIndex = currentQuestion % 3
-  const currentAnswer = answers[currentDimension][dimensionIndex]
+  const dimensionKey = dimensionToKey(currentDimension)
+  const currentAnswer = answers[dimensionKey][dimensionIndex]
 
   const isFirstQuestion = currentQuestion === 0
   const isLastQuestion = currentQuestion === questions.length - 1

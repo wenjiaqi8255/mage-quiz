@@ -71,13 +71,16 @@ export function calculateResult(answers: Answers): Result {
 
   if (!archetype) return fallback
 
+  // Derive source/method/cost from the key (format: {source}-{method}-{cost})
+  const [archSource, archMethod, archCost] = key.split('-')
+
   return {
     name: archetype.name,
     symbol: archetype.rune,
     description: archetype.description,
-    source: archetype.source,
-    method: archetype.method,
-    cost: archetype.cost,
+    source: archSource,
+    method: archMethod,
+    cost: archCost,
     example: archetype.examples.join('、'),
     scores: { src: srcScores, met: metScores, cst: cstScores }
   }
