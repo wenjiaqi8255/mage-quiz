@@ -14,7 +14,7 @@
 | 3 | Core Pages | Landing, Quiz, and Result pages | LAND-01 ~ LAND-04, QUIZ-01 ~ QUIZ-04, RES-01 ~ RES-03 | 5 criteria |
 | 4 | Polish | Visual enhancements and animations | POLY-01 ~ POLY-04 | 4 criteria |
 | 5 | Deployment | GitHub Pages release | DEPL-01 ~ DEPL-02 | 2 criteria |
-| 6 | JSON-driven quiz data | Refactor to JSON-driven configuration | (See below) | 3 criteria |
+| 6 | 1/2 | Complete    | 2026-03-31 | 3 criteria |
 
 ## Phase 1: Setup
 
