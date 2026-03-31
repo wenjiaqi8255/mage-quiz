@@ -1,4 +1,4 @@
-import { archetypes } from '../data/archetypes'
+import { archetypes } from '../data/quizConfig'
 
 export interface Result {
   name: string
@@ -53,43 +53,9 @@ export function calculateResult(answers: Answers): Result {
   const topMet = getTop(metScores)
   const topCst = getTop(cstScores)
 
-  // Build key and find archetype
+  // Build key using JSON format: {source}-{method}-{cost}
   const key = `${topSrc}-${topMet}-${topCst}`
-  const archetype = archetypes.find(a => {
-    // Map archetype names to the key format
-    const nameMap: Record<string, string> = {
-      '烈焰编织者': '自我-意志-介质',
-      '烈焰': '自我-意志-介质',
-      '学源法师': '界域-律式-心神',
-      '窥天术士': '界域-律式-因果',
-      '炼金术士': '界域-律式-介质',
-      '自然巫师': '界域-契约-心神',
-      '自然守护者': '界域-契约-因果',
-      '巫医通灵者': '界域-契约-介质',
-      '天人合一者': '界域-意志-心神',
-      '命途行者': '界域-意志-因果',
-      '自然化身': '界域-意志-介质',
-      '神明使者': '宗主-律式-心神',
-      '信仰之光': '宗主-律式-因果',
-      '神器密法师': '宗主-律式-介质',
-      '降神使者': '宗主-契约-心神',
-      '神之使徒': '宗主-契约-因果',
-      '法宝持有者': '宗主-契约-介质',
-      '神谕先知': '宗主-意志-心神',
-      '神仆存在': '宗主-意志-因果',
-      '幻想具现者': '宗主-意志-介质',
-      '魔力学者': '自我-律式-心神',
-      '禁忌术士': '自我-律式-因果',
-      '改造术师': '自我-律式-介质',
-      '人格面具使': '自我-契约-心神',
-      '命运承担者': '自我-契约-因果',
-      '血约术士': '自我-契约-介质',
-      '异能觉醒者': '自我-意志-心神',
-      '超然存在': '自我-意志-因果',
-      '神器骑士': '自我-意志-介质',
-    }
-    return nameMap[a.name] === key
-  })
+  const archetype = archetypes[key]
 
   // Fallback result if not found
   const fallback: Result = {
@@ -107,12 +73,12 @@ export function calculateResult(answers: Answers): Result {
 
   return {
     name: archetype.name,
-    symbol: archetype.symbol,
+    symbol: archetype.rune,
     description: archetype.description,
     source: archetype.source,
     method: archetype.method,
     cost: archetype.cost,
-    example: archetype.traits.join('、'),
+    example: archetype.examples.join('、'),
     scores: { src: srcScores, met: metScores, cst: cstScores }
   }
 }
