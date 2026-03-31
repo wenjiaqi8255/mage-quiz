@@ -3,7 +3,7 @@
 **Created:** 2026-03-31
 **Mode:** YOLO (auto-approve)
 **Granularity:** Coarse
-**Phases:** 5
+**Phases:** 6
 
 ## Overview
 
@@ -14,6 +14,7 @@
 | 3 | Core Pages | Landing, Quiz, and Result pages | LAND-01 ~ LAND-04, QUIZ-01 ~ QUIZ-04, RES-01 ~ RES-03 | 5 criteria |
 | 4 | Polish | Visual enhancements and animations | POLY-01 ~ POLY-04 | 4 criteria |
 | 5 | Deployment | GitHub Pages release | DEPL-01 ~ DEPL-02 | 2 criteria |
+| 6 | JSON-driven quiz data | Refactor to JSON-driven configuration | (See below) | 3 criteria |
 
 ## Phase 1: Setup
 
@@ -110,13 +111,27 @@
 
 ---
 
-## Phase Dependencies
+## Phase 6: JSON-driven quiz data
 
-- Phase 2 depends on Phase 1 (data needs running project)
-- Phase 3 depends on Phase 2 (pages need data layer)
-- Phase 4 depends on Phase 3 (animations need pages)
-- Phase 5 depends on Phase 4 (deployment needs polished code)
+**Goal:** Refactor quiz data from hardcoded TypeScript files to JSON-driven configuration
+
+**Requirements:**
+- JSON-01: Load JSON configuration at runtime with type definitions
+- JSON-02: Update calculateResult to use JSON key format directly
+- JSON-03: Update QuizContext and pages to use JSON data source
+
+**Success Criteria:**
+1. quizConfig.ts exports typed questions and archetypes from JSON
+2. calculateResult.ts uses JSON key format directly (no name mapping)
+3. All pages use quizConfig.ts as single source of truth
+
+**Dependencies:** Phase 5
+
+### Plans
+
+- [ ] 06-01-PLAN.md — JSON types and config loader, update calculateResult
+- [ ] 06-02-PLAN.md — Update QuizContext and pages to use quizConfig
 
 ---
 
-*Last updated: 2026-03-31 after roadmap creation*
+*Last updated: 2026-04-01 after phase 6 planning*
