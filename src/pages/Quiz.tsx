@@ -35,8 +35,8 @@ export default function Quiz() {
   const question = questions[currentQuestion]
   const dimension = question.dimension
 
-  // Calculate the index within the dimension (0-2 for each dimension)
-  const dimensionIndex = currentQuestion % 3
+  // Use index_in_dimension from JSON config (1-based, convert to 0-based)
+  const dimensionIndex = question ? question.index_in_dimension - 1 : 0
   const dimensionKey = dimensionToKey(dimension)
   const currentAnswer = answers[dimensionKey][dimensionIndex]
   const progress = Math.round((currentQuestion / totalQuestions) * 100)

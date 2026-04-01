@@ -76,8 +76,9 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  // Calculate the index within the dimension (0-2 for each dimension)
-  const dimensionIndex = currentQuestion % 3
+  // Use index_in_dimension from JSON config (1-based, convert to 0-based)
+  const currentQ = questions[currentQuestion]
+  const dimensionIndex = currentQ ? currentQ.index_in_dimension - 1 : 0
   const dimensionKey = dimensionToKey(currentDimension)
   const currentAnswer = answers[dimensionKey][dimensionIndex]
 
