@@ -27,6 +27,8 @@ export default function ShareButton({ result }: ShareButtonProps) {
       clone.style.visibility = 'visible'
       clone.style.left = '0'
       clone.style.top = '0'
+      clone.style.height = 'auto'
+      clone.style.minHeight = '580px'
       document.body.appendChild(clone)
 
       // Capture the cloned element
@@ -34,6 +36,8 @@ export default function ShareButton({ result }: ShareButtonProps) {
         scale: 2,
         backgroundColor: '#0a0a0b',
         useCORS: true,
+        logging: false,
+        windowHeight: clone.scrollHeight + 100,
       })
       document.body.removeChild(clone)
 

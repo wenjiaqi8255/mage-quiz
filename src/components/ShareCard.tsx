@@ -22,12 +22,14 @@ const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(({ result }, ref) =
         left: '-9999px',
         top: '0',
         width: '400px',
-        height: '500px',
+        minHeight: '580px',
+        height: 'auto',
         background: '#0a0a0b',
         fontFamily: "'Noto Serif SC', serif",
-        padding: '40px 30px',
+        padding: '40px 30px 50px 30px',
         boxSizing: 'border-box',
         visibility: 'visible',
+        overflow: 'visible',
       }}
     >
       {/* Header */}
