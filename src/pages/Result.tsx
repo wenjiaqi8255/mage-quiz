@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useQuiz } from '../context/QuizContext'
+import ShareButton from '../components/ShareButton'
 
 export default function Result() {
   const navigate = useNavigate()
@@ -149,11 +150,12 @@ export default function Result() {
           </div>
         </div>
 
-        {/* Restart button */}
-        <div className="text-center">
+        {/* Restart and Share buttons */}
+        <div className="text-center flex gap-4 justify-center">
           <button onClick={handleRestart} className="restart-btn">
             重新测算
           </button>
+          <ShareButton result={result} />
         </div>
       </div>
     </div>
