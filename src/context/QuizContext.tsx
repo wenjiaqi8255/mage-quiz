@@ -1,6 +1,13 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react'
 import { questions, type Dimension } from '../data/quizConfig'
 import { calculateResult, type Result } from '../utils/calculateResult'
+
+const STORAGE_KEY = 'mage_quiz_state'
+
+interface PersistedState {
+  currentQuestion: number
+  answers: Answers
+}
 
 interface Answers {
   src: (string | null)[]
@@ -14,6 +21,37 @@ const dimensionToKey = (dimension: Dimension): 'src' | 'met' | 'cst' => {
     case 'source': return 'src'
     case 'method': return 'met'
     case 'cost': return 'cst'
+  }
+}
+
+// Load state from localStorage
+function loadPersistedState(): PersistedState | null {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY)
+    if (stored) {
+      return JSON.parse(stored) as PersistedState
+    }
+  } catch {
+    // Ignore parse errors
+  }
+  return null
+}
+
+// Save state to localStorage
+function persistState(state: PersistedState): void {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+  } catch {
+    // Ignore storage errors (e.g., quota exceeded)
+  }
+}
+
+// Clear persisted state
+function clearPersistedState(): void {
+  try {
+    localStorage.removeItem(STORAGE_KEY)
+  } catch {
+    // Ignore errors
   }
 }
 
@@ -36,11 +74,18 @@ interface QuizContextType {
 const QuizContext = createContext<QuizContextType | null>(null)
 
 export function QuizProvider({ children }: { children: ReactNode }) {
-  const [currentQuestion, setCurrentQuestion] = useState(0)
-  const [answers, setAnswers] = useState<Answers>({
-    src: new Array(3).fill(null),
-    met: new Array(3).fill(null),
-    cst: new Array(3).fill(null)
+  // Initialize from localStorage if available
+  const [currentQuestion, setCurrentQuestion] = useState(() => {
+    const persisted = loadPersistedState()
+    return persisted?.currentQuestion ?? 0
+  })
+  const [answers, setAnswers] = useState<Answers>(() => {
+    const persisted = loadPersistedState()
+    return persisted?.answers ?? {
+      src: new Array(3).fill(null),
+      met: new Array(3).fill(null),
+      cst: new Array(3).fill(null)
+    }
   })
 
   const currentDimension = questions[currentQuestion].dimension
@@ -97,7 +142,13 @@ export function QuizProvider({ children }: { children: ReactNode }) {
       met: new Array(3).fill(null),
       cst: new Array(3).fill(null)
     })
+    clearPersistedState()
   }, [])
+
+  // Persist state changes to localStorage
+  useEffect(() => {
+    persistState({ currentQuestion, answers })
+  }, [currentQuestion, answers])
 
   return (
     <QuizContext.Provider value={{
