@@ -38,10 +38,8 @@ const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(({ result }, ref) =
           style={{
             fontFamily: "'Cormorant Garamond', serif",
             fontSize: '64px',
-            background: 'linear-gradient(135deg, #c9a962, #d4b978, #8a7642)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
+            color: '#c9a962',
+            filter: 'drop-shadow(0 0 30px rgba(201, 169, 98, 0.4))',
             marginBottom: '16px',
           }}
         >
